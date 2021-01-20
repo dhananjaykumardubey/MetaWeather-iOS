@@ -2,7 +2,7 @@
 //  ImageRequest.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 20/1/21.
+//  Created by Dhananjay Kumar Dubey on 20/1/21.
 //
 
 import Foundation

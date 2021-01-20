@@ -2,12 +2,25 @@
 //  UITextField.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 19/1/21.
+//  Created by Dhananjay Kumar Dubey on 19/1/21.
 //
 
 import UIKit.UITextField
 
 extension UITextField {
+    
+    func applyStyle() {
+        self.font = UIFont.preferredFont(forTextStyle: .title3)
+        self.textAlignment = .center
+        self.textColor = UIColor.orange
+        self.borderStyle = .roundedRect
+        self.layer.borderWidth = CGFloat(1.0)
+        self.layer.cornerRadius = CGFloat(8.0)
+        self.layer.borderColor = UIColor.gray.withAlphaComponent(0.8).cgColor
+        self.rightViewMode = .always
+        self.tintColor = .clear
+        self.addDoneButton()
+    }
     
     /// Adds a Done button in textFields input accessory view
     func addDoneButton() {

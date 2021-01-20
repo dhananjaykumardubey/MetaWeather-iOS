@@ -2,7 +2,7 @@
 //  UIImage+Style.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 19/1/21.
+//  Created by Dhananjay Kumar Dubey on 19/1/21.
 //
 
 import Foundation

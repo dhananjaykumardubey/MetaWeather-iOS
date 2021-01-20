@@ -2,7 +2,7 @@
 //  WeatherViewModel.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 19/1/21.
+//  Created by Dhananjay Kumar Dubey on 19/1/21.
 //
 
 import Foundation
@@ -23,63 +23,86 @@ class WeatherViewModel {
     /// Callback returning selected source currency
     var selectedLocation: ((String) -> Void)?
     
-    /// Callback returning exchangeRateData as datasource
-//    var exchangedRateData: (([[ExchangeRateData]]) -> Void)?
+    /// Callback returning weatherReport which will be displayed in VC
+    var weatherReport: ((ConsolidatedWeather?) -> Void)?
     
     //MARK: Private properties
     private let apiClient: APIClient?
-    private lazy var locations: [String] = []
-    private var location = ""
+    private lazy var locationLists: Locations = []
+    private var location: Location?
+    
+    /// Source location
+    var sourceLocations: Locations {
+        return self.locationLists
+    }
     
     required init(with apiClient: WeatherAPIClient) {
         self.apiClient = apiClient
-//        self.locations = self.readAvailableCurrencies()
+        self.locationLists = self.readAvailableLocations()
     }
 
+    //MARK: Exposed functions
+    
     /// BindViewModel call to let viewmodel know that bindViewModel of viewcontroller is called and completed and properties can be observed
     func bindViewModel() {
-        self.selectedLocation?(self.location)
-        self.getWeatherReport(for: "")
+        self.selectedLocation?(self.location?.title ?? "")
     }
     
     /**
      Get consolidated weather for given location
      - parameters:
         - location: Location for which weather needs to be fetched
+        - date: Date for which weather is to be fetched, should be in format of `2021/1/21`
      */
-    func getWeatherReport(for location: String) {
+    func getWeatherReport(for location: String, for date: String) {
         self.startLoading?()
-        self.apiClient?.fetchWeatherReport(for: "44418", then: { [weak self] data in
+        self.apiClient?.fetchWeatherReport(for: location, and: date, then: { [weak self] response in
             guard let _self = self else { return }
-            print("Data == \(data)")
+            DispatchQueue.main.async {
+                _self.endLoading?()
+                switch response {
+                case let .success(lists):
+                    _self.endLoading?()
+                    _self.weatherReport?(lists.first)
+                case let .failed(error):
+                    _self.showError?(error.localizedDescription)
+                }
+            }
         })
-//        if self.shouldFetchExchangeRates() {
-//            self.apiClient?.fetchListOfRecentRates(for: self.currencies, source: currency, then: { [weak self] response in
-//                guard let _self = self else { return }
-//                DispatchQueue.main.async {
-//                    switch response {
-//                    case let .success(lists):
-//                        if lists.success, let quotes = lists.quotes, !quotes.isEmpty {
-//                            _self.endLoading?()
-//                            _self.exchangeRates = quotes
-//                            do {
-//                                try UserDefaults.standard.setObject(lists, forKey: currency)
-//                                // had to save the current date, as lastTimestamp coming from API is always constant value
-//                                try UserDefaults.standard.setObject(Date(), forKey: "lastServiceCallDate")
-//                            } catch {
-//                                print("Failed to save \(error)")
-//                            }
-//                            _self.mapExchangeRateData()
-//                        } else {
-//                            _self.showError?(lists.error?.info ?? "")
-//                        }
-//                    case let .failed(error):
-//                        _self.showError?(error.localizedDescription)
-//                    }
-//                }
-//            })
-//        } else {
-//            self.endLoading?()
-//        }
+    }
+    
+    /**
+     Selected location. Let viewModel know which location was selected for fetching the weather report
+     - parameters:
+        - index: Selected currency index
+     */
+    func selectedLocation(index: Int) {
+        if index < self.locationLists.count {
+            self.location = self.locationLists[index]
+            
+            guard let locationTitle = self.location?.title,
+                  let woied = self.location?.woeid,
+                let date = Format.formatTomorrowDate(for: locationTitle) else { return }
+            
+            self.selectedLocation?(locationTitle)
+            self.getWeatherReport(for: "\(woied)", for: date)
+        }
+    }
+       
+    //MARK: Private functions
+
+    private func readAvailableLocations() -> Locations {
+        
+        guard let url = Bundle.main.url(forResource: "Locations", withExtension: "json")
+            else { return [] }
+        do {
+            let jsonData = try Data(contentsOf: url)
+            let responseData = try JSONDecoder().decode(Locations.self, from: jsonData)
+            return responseData
+        }
+        catch {
+            print(error)
+        }
+        return []
     }
 }

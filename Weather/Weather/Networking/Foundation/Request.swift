@@ -14,6 +14,8 @@ protocol URLRequestConvertible {
 
 protocol Request: URLRequestConvertible {
     var url: URL { get }
+    
+    var endPoint: String { get }
 }
 
 ///Just informing that request will be parameterized
@@ -30,6 +32,11 @@ extension ParameteredRequest {
     func expressAsURLRequest() throws -> URLRequest {
         return try self.build()
     }
+
+    func parameter() -> [String : String] {
+        return [:]
+    }
+    
 }
 
 protocol DataRequest: Request {

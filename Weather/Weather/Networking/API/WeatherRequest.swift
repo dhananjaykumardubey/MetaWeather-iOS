@@ -2,7 +2,7 @@
 //  WeatherRequest.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 20/1/21.
+//  Created by Dhananjay Kumar Dubey on 20/1/21.
 //
 
 import Foundation
@@ -10,29 +10,48 @@ import Foundation
 struct WeatherRequest {
     
     let url: URL
-    let locationId: String
+    let location: String
+    let date: String
     
     /**
      Initializes `WeatherRequest` with URL, and locationID
     
      - parameters:
         - url: Base URL
-        - locationId: location Id for which weather is to be fetched
+        - location: location Id
+        - date: date for which weather needs to be fetched
      */
-    init(url: URL, locationId: String) {
+    init(url: URL, location: String, date: String) {
         self.url = url
-        self.locationId = locationId
+        self.location = location
+        self.date = date
     }
 }
 
-extension WeatherRequest: DataRequest, ParameteredRequest {    
+extension WeatherRequest: DataRequest, ParameteredRequest {
     typealias Response = Weather
     
-    /**
-     Provides request parameter which needs to be paased as query parameter in URL component, and used by request builder to create a complete url request
-     - returns: A dictionary of request parameters
-     */
-    func parameter() -> [String : String] {
-        return [:]
+    var endPoint: String {
+        return "/api/location/\(self.location)/\(self.date)"
+    }
+    
+    func expressAsURLRequest() throws -> URLRequest {
+        try self.buildURL()
+    }
+    
+    func buildURL() throws -> URLRequest {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.path = self.endPoint
+        components.host = self.url.absoluteString
+        guard let localUrl = components.url else {
+            let errorMessage = components.queryItems?.map { String(describing: $0) }.joined(separator: ", ") ?? ""
+            
+            throw BuilderError.unableBuildURL(message: "query item \(errorMessage)")
+        }
+        
+        return URLRequest(url: localUrl,
+                                    cachePolicy: URLRequest.CachePolicy.reloadRevalidatingCacheData,
+                                    timeoutInterval: 30)
     }
 }

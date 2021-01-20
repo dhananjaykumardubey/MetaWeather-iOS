@@ -2,21 +2,21 @@
 //  Weather.swift
 //  Weather
 //
-//  Created by Sushil Nagarale on 19/1/21.
+//  Created by Dhananjay Kumar Dubey on 19/1/21.
 //
 
 import Foundation
 
-struct Weather: Codable {
-    let data: [ConsolidatedWeather]
-}
+typealias Weather  = [ConsolidatedWeather]
 
 struct ConsolidatedWeather {
     let stateName: String?
     let stateAbbreviation: String?
-    let minTemp: Double?
-    let maxTemp: Double?
-    let humidity: Double?
+    let minTemp: String
+    let maxTemp: String
+    let theTemp: String
+    let humidity: String
+    let state: WeatherState
 }
 
 extension ConsolidatedWeather: Codable {
@@ -24,49 +24,46 @@ extension ConsolidatedWeather: Codable {
     private enum CodingKeys: String, CodingKey {
         
         case stateName = "weather_state_name", stateAbbreviation = "weather_state_abbr",
-             minTemp = "min_temp", maxTemp = "max_temp", humidity = "humidity"
+             minTemp = "min_temp", maxTemp = "max_temp", humidity = "humidity", theTemp = "the_temp"
     }
-
+    
     public init() {
         self.stateName = ""
         self.stateAbbreviation = ""
-        self.minTemp = 0.0
-        self.maxTemp = 0.0
-        self.humidity = 0.0
+        self.minTemp = ""
+        self.maxTemp = ""
+        self.humidity = ""
+        self.theTemp = ""
+        self.state = .none
     }
     
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self.stateName = try values.decodeIfPresent(String.self, forKey: .stateName)
         self.stateAbbreviation = try values.decodeIfPresent(String.self, forKey: .stateAbbreviation)
-        self.minTemp = try values.decodeIfPresent(Double.self, forKey: .minTemp)
-        self.maxTemp = try values.decodeIfPresent(Double.self, forKey: .maxTemp)
-        self.humidity = try values.decodeIfPresent(Double.self, forKey: .humidity)
+        
+        let minTemp = try values.decodeIfPresent(Double.self, forKey: .minTemp)
+        self.minTemp = String(format: "%.2f", minTemp ?? 0.0)
+        
+        let maxTemp = try values.decodeIfPresent(Double.self, forKey: .maxTemp)
+        self.maxTemp = String(format: "%.2f", maxTemp ?? 0.0)
+        
+        let theTemp = try values.decodeIfPresent(Double.self, forKey: .theTemp)
+        self.theTemp = String(format: "%.2f", theTemp ?? 0.0)
+        
+        let humidity = try values.decodeIfPresent(Double.self, forKey: .humidity)
+        self.humidity = String(format: "%.2f", humidity ?? 0.0)
+        
+        self.state = WeatherState.state(from: self.stateAbbreviation ?? "")
     }
     
     public func encode(to encoder: Encoder) throws {
-         var container = encoder.container(keyedBy: CodingKeys.self)
+        var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(stateName, forKey: .stateName)
         try container.encodeIfPresent(stateAbbreviation, forKey: .stateAbbreviation)
         try container.encodeIfPresent(minTemp, forKey: .minTemp)
         try container.encodeIfPresent(maxTemp, forKey: .maxTemp)
+        try container.encodeIfPresent(theTemp, forKey: .theTemp)
         try container.encodeIfPresent(humidity, forKey: .humidity)
-     }
+    }
 }
-
-/// DUMMY RESPONSE
-//"id": 6225261444988928,
-//     "weather_state_name": "Heavy Rain",
-//     "weather_state_abbr": "hr",
-//     "wind_direction_compass": "SSW",
-//     "created": "2021-01-19T15:20:02.754425Z",
-//     "applicable_date": "2021-01-20",
-//     "min_temp": 9.165,
-//     "max_temp": 11.54,
-//     "the_temp": 10.09,
-//     "wind_speed": 13.889736745812456,
-//     "wind_direction": 204.1659632905465,
-//     "air_pressure": 989.0,
-//     "humidity": 84,
-//     "visibility": 7.71898363556828,
-//     "predictability": 77

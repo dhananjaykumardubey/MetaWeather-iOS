@@ -1,0 +1,32 @@
+[
+{
+    "title": "Stockholm",
+    "woeid": 906057,
+    "timeZone": "Europe/Stockholm"
+},
+ {
+    "title": "Gothenburg",
+    "woeid": 890869,
+    "timeZone": "Europe/Stockholm"
+},
+ {
+    "title": "London",
+    "woeid": 44418,
+    "timeZone": "Europe/London"
+},
+ {
+    "title": "Mountain View",
+    "woeid": 2455920,
+    "timeZone": "America/Los_Angeles"
+},
+ {
+    "title": "New York",
+    "woeid": 2459115,
+    "timeZone": "America/New_York"
+},
+ {
+    "title": "Berlin",
+    "woeid": 638242,
+    "timeZone": "Europe/Berlin"
+}
+ ]

@@ -12,7 +12,7 @@ protocol APIClient {
     
     init(baseURL: URL, networkSession: NetworkSession)
 
-    func fetchWeatherReport(for location: String, then completion: @escaping ((Result<Weather>) -> Void))
+    func fetchWeatherReport(for location: String, and date: String, then completion: @escaping ((Result<Weather>) -> Void))
 }
 
 /// Responsible for providing required content fetched from server.
@@ -37,8 +37,8 @@ struct WeatherAPIClient: APIClient {
          - completion: completion handler which returns service response, either failed with error, or successfull album details.
      
      */
-    func fetchWeatherReport(for location: String, then completion: @escaping ((Result<Weather>) -> Void)) {
-        let request = WeatherRequest.init(url: self.baseURL, locationId: location)
+    func fetchWeatherReport(for location: String, and date: String, then completion: @escaping ((Result<Weather>) -> Void)) {
+        let request = WeatherRequest(url: self.baseURL, location: location, date: date)
         request.execute(onNetwork: self.networkSession, then: completion)
     }
 }
