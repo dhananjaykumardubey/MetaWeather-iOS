@@ -31,16 +31,16 @@ class WeatherViewModel {
     private lazy var locationLists: Locations = []
     private var location: Location?
     
-    /// Source location
-    var sourceLocations: Locations {
-        return self.locationLists
-    }
-    
     required init(with apiClient: WeatherAPIClient) {
         self.apiClient = apiClient
         self.locationLists = self.readAvailableLocations()
     }
 
+    /// Source location
+    var sourceLocations: Locations {
+        return self.locationLists
+    }
+    
     //MARK: Exposed functions
     
     /// BindViewModel call to let viewmodel know that bindViewModel of viewcontroller is called and completed and properties can be observed
